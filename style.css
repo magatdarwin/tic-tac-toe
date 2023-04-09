@@ -1,0 +1,25 @@
+:root {
+  --default-border: 3px solid black;
+}
+
+body {
+  display: grid;
+  justify-items: center;
+  gap: 50px;
+}
+
+.outer-box {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 200px));
+  grid-template-rows: repeat(3, minmax(100px, 200px));
+}
+
+.col-2 {
+  border-left: var(--default-border);
+  border-right: var(--default-border);
+}
+
+.row-2 {
+  border-top: var(--default-border);
+  border-bottom: var(--default-border);
+}
