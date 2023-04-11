@@ -1,5 +1,5 @@
 const gameBoard = (doc => {
-  let gameBoxes = [];
+  let boxes = [];
 
   const draw = () => {
     const body = doc.querySelector('body');
@@ -8,7 +8,7 @@ const gameBoard = (doc => {
 
     let box;
     for (let row = 0; row < 3; row++) {
-      gameBoxes.push([]);
+      boxes.push([]);
       for (let column = 0; column < 3; column++) {
         box = doc.createElement('div');
         box.classList.add('box');
@@ -24,7 +24,7 @@ const gameBoard = (doc => {
           box.classList.add('col-2');
         }
 
-        gameBoxes[row].push('');
+        boxes[row].push('');
         outerBox.appendChild(box);
       }
     }
@@ -33,9 +33,28 @@ const gameBoard = (doc => {
   }
 
   return {
-    gameBoxes,
+    boxes,
     draw,
   }
 })(document);
 
+const gameController = (doc => {
+  let activePlayer;
+  let winner;  
+
+  const executeGame = () => {
+    let boxes = document.querySelectorAll('.box');
+
+    boxes.forEach(box => box.addEventListener('click', e => {
+      box.textContent = 'O';
+      gameBoard.boxes[box.dataset.row][box.dataset.column] = 'O';
+    }));
+  }
+
+  return {
+    executeGame,
+  }
+})(document);
+
 gameBoard.draw();
+gameController.executeGame();
