@@ -62,3 +62,7 @@ const displayController = (doc => {
     drawSymbol,
   }
 })(document);
+
+const player = (symbol) => {
+  return { symbol }
+};
