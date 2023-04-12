@@ -1,4 +1,4 @@
-const gameBoard = (doc => {
+const gameBoard = (() => {
   let boxes = [];
 
   const populateBoxes = () => {
@@ -21,4 +21,4 @@ const gameBoard = (doc => {
     getSymbol,
     setSymbol,
   }
-})(document);
+})();
