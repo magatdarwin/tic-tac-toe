@@ -12,6 +12,57 @@ const gameBoard = (() => {
 
   const getSymbol = (row, column) => boxes[row][column];
 
+  const getRow = row => {
+    let line = boxes[row];
+    let coordinates = [];
+
+    for (let column = 0; column < boxes.length; column++) {
+      coordinates.push([row, column]);
+    }
+
+    return { line, coordinates };
+  }
+
+  const getColumn = column => {
+    let line = [];
+    let coordinates = [];
+
+    for (let row = 0; row < boxes.length; row++) {
+      line.push(boxes[row][column]);
+      coordinates.push([row, column]);
+    }
+
+    return { line, coordinates };
+  }
+
+  const getDiagonalLeft = () => {
+    let line = [];
+    let coordinates = [];
+
+    // Get boxes [0,0], [1,1], [2,2]
+    for (let row = 0; row < boxes.length; row++) {
+      line.push(boxes[row][row]);
+      coordinates.push([row, row]);
+    }
+
+    return { line, coordinates };
+  }
+
+  const getDiagonalRight = () => {
+    let line = [];
+    let coordinates = [];
+    let column;
+
+    // Get boxes  [0,2], [1,1], [2,0]
+    for (let row = 0; row < boxes.length; row++) {
+      column = boxes.length - 1 - row;
+      line.push(boxes[row][column]);
+      coordinates.push([row, column]);
+    }
+
+    return { line, coordinates };
+  }
+
   const setSymbol = (row, column, symbol) => {
     boxes[row][column] = symbol;
   }
@@ -20,6 +71,10 @@ const gameBoard = (() => {
     populateBoxes,
     getSymbol,
     setSymbol,
+    getRow,
+    getColumn,
+    getDiagonalLeft,
+    getDiagonalRight,
   }
 })();
 
@@ -57,12 +112,103 @@ const displayController = (doc => {
     target.innerText = symbol;
   }
 
+  const shadeWinner = coordinates => {
+    let box;
+    coordinates.forEach(coordinate => {
+      box = document.querySelector(`[data-row="${coordinate[0]}"][data-column="${coordinate[1]}"]`);
+      box.classList.add('winner');
+    });
+  }
+
   return {
     drawBoard,
     drawSymbol,
+    shadeWinner,
   }
 })(document);
 
 const player = (symbol) => {
   return { symbol }
 };
+
+const gameController = (() => {
+  let player1 = player('X');
+  let player2 = player('O');
+  let activePlayer = player1;
+  let winningLine = [];
+
+  const swapActivePlayer = () => {
+    activePlayer = activePlayer === player1 ? player2 : player1;
+  }
+
+  // Returns array of rows and columns
+  const getWinningLine = () => {
+    let row;
+    let column;
+
+    const allEqual = (arr, symbol) => arr.every(val => val === symbol);
+
+    // Check rows and columns
+    for (let line = 0; line < 3; line++) {
+      row = gameBoard.getRow(line);
+      column = gameBoard.getColumn(line);
+
+      if (allEqual(row.line, activePlayer.symbol)) {
+        return row;
+      }
+
+      if (allEqual(column.line, activePlayer.symbol)) {
+        return column;
+      }
+    }
+
+    // Check diagonals
+    for (let diagonal of [gameBoard.getDiagonalLeft(), gameBoard.getDiagonalRight()]) {
+      if (allEqual(diagonal.line, activePlayer.symbol)) {
+        return diagonal;
+      }
+    }
+  }
+
+  const playRound = box => {
+    const row = box.dataset.row;
+    const column = box.dataset.column;
+
+    if (box.innerText === '' && gameBoard.getSymbol(row, column) === '') {
+      gameBoard.setSymbol(row, column, activePlayer.symbol);
+      displayController.drawSymbol(activePlayer.symbol, box);
+
+      return getWinningLine();
+    }
+  }
+
+  const executeGame = () => {
+    gameBoard.populateBoxes();
+    displayController.drawBoard();
+
+    let boxes = document.querySelectorAll('.box');
+    boxes.forEach(box => box.addEventListener('click', event => {
+      winningLine = playRound(event.target);
+
+      if (winningLine !== undefined) {
+        /* TO-DO: 
+        - Add display winning message 
+        - Reset board after confirmation
+        */
+        console.log(`Player ${activePlayer.symbol} wins!`);
+
+        displayController.shadeWinner(winningLine.coordinates);
+      }
+      else {
+        swapActivePlayer();
+      }
+    }));
+  }
+
+  return {
+    executeGame,
+    winningLine,
+  }
+})();
+
+gameController.executeGame();

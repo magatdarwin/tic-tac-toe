@@ -30,3 +30,7 @@ body {
   border-top: var(--default-border);
   border-bottom: var(--default-border);
 }
+
+.winner {
+  background-color: rgb(85, 128, 85);
+}
