@@ -120,9 +120,25 @@ const displayController = (doc => {
   const shadeWinner = coordinates => {
     let box;
     coordinates.forEach(coordinate => {
-      box = document.querySelector(`[data-row="${coordinate[0]}"][data-column="${coordinate[1]}"]`);
+      box = doc.querySelector(`[data-row="${coordinate[0]}"][data-column="${coordinate[1]}"]`);
       box.classList.add('winner');
     });
+  }
+
+  const endMessage = winner => {
+    const message = doc.querySelector('#end-message');
+    const endModal = doc.querySelector('#end-modal');
+    let endCondition;
+
+    if (winner !== 'none') {
+      endCondition = `Player ${winner} wins!`;
+    }
+    else {
+      endCondition = "It's a Draw!";
+    }
+
+    message.innerText = `Game Over! ${endCondition}`;
+    endModal.style.display = 'block';
   }
 
   return {
@@ -130,6 +146,7 @@ const displayController = (doc => {
     drawSymbol,
     shadeWinner,
     updateActivePlayer,
+    endMessage,
   }
 })(document);
 
@@ -177,9 +194,20 @@ const gameController = (() => {
     }
   }
 
-  /* const gameOver = winner => {
+  const isGameboardFilled = () => {
+    for (let row = 0; row < 3; row++) {
+      for (let column = 0; column < 3; column++) {
+        if (gameBoard.getSymbol(row, column) === '') {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  const gameOver = winner => {
     displayController.endMessage(winner);
-  } */
+  }
 
   const playRound = box => {
     const row = box.dataset.row;
@@ -203,13 +231,14 @@ const gameController = (() => {
       winningLine = playRound(event.target);
 
       if (winningLine !== undefined) {
-        /* TO-DO: 
-        - Add display winning message 
-        - Reset board after confirmation
+        /* TO-DO:
+        - Reset board after end confirmation
         */
-        console.log(`Player ${activePlayer.symbol} wins!`);
-
+        gameOver(activePlayer.symbol);
         displayController.shadeWinner(winningLine.coordinates);
+      }
+      else if (winningLine === undefined && isGameboardFilled()) {
+        gameOver('none');
       }
       else {
         swapActivePlayer();
