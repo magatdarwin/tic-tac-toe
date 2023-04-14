@@ -79,6 +79,11 @@ const gameBoard = (() => {
 })();
 
 const displayController = (doc => {
+  const updateActivePlayer = activePlayer => {
+    const text = doc.querySelector('.player-turn');
+    text.innerText = `Player ${activePlayer.symbol}'s Turn`;
+  }
+
   const drawBoard = () => {
     const body = doc.querySelector('body');
     const outerBox = doc.createElement('div');
@@ -124,6 +129,7 @@ const displayController = (doc => {
     drawBoard,
     drawSymbol,
     shadeWinner,
+    updateActivePlayer,
   }
 })(document);
 
@@ -139,6 +145,7 @@ const gameController = (() => {
 
   const swapActivePlayer = () => {
     activePlayer = activePlayer === player1 ? player2 : player1;
+    displayController.updateActivePlayer(activePlayer);
   }
 
   // Returns array of rows and columns
@@ -170,6 +177,10 @@ const gameController = (() => {
     }
   }
 
+  /* const gameOver = winner => {
+    displayController.endMessage(winner);
+  } */
+
   const playRound = box => {
     const row = box.dataset.row;
     const column = box.dataset.column;
@@ -185,6 +196,7 @@ const gameController = (() => {
   const executeGame = () => {
     gameBoard.populateBoxes();
     displayController.drawBoard();
+    displayController.updateActivePlayer(activePlayer);
 
     let boxes = document.querySelectorAll('.box');
     boxes.forEach(box => box.addEventListener('click', event => {
