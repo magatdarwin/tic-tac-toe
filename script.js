@@ -127,7 +127,7 @@ const displayController = (doc => {
 
   const endMessage = winner => {
     const message = doc.querySelector('#end-message');
-    const endModal = doc.querySelector('#end-modal');
+    const endContainer = doc.querySelector('#end-game-container');
     let endCondition;
 
     if (winner !== 'none') {
@@ -138,7 +138,10 @@ const displayController = (doc => {
     }
 
     message.innerText = `Game Over! ${endCondition}`;
-    endModal.style.display = 'block';
+    endContainer.style.display = 'flex';
+
+    const playerTurn = doc.querySelector('.player-turn');
+    playerTurn.style.display = 'none';
   }
 
   return {
@@ -154,7 +157,7 @@ const player = (symbol) => {
   return { symbol }
 };
 
-const gameController = (() => {
+const gameController = (doc => {
   let player1 = player('X');
   let player2 = player('O');
   let activePlayer = player1;
@@ -226,7 +229,7 @@ const gameController = (() => {
     displayController.drawBoard();
     displayController.updateActivePlayer(activePlayer);
 
-    let boxes = document.querySelectorAll('.box');
+    let boxes = doc.querySelectorAll('.box');
     boxes.forEach(box => box.addEventListener('click', event => {
       winningLine = playRound(event.target);
 
@@ -250,6 +253,6 @@ const gameController = (() => {
     executeGame,
     winningLine,
   }
-})();
+})(document);
 
 gameController.executeGame();

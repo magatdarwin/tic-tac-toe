@@ -5,6 +5,7 @@
 body {
   display: grid;
   justify-items: center;
+  gap: 20px;
 }
 
 .outer-box {
@@ -58,4 +59,17 @@ body {
   align-items: center;
   font-size: 2em;
   font-weight: 700;
+}
+
+#end-game-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 900;
 }
