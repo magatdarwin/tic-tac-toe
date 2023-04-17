@@ -1,7 +1,8 @@
 const gameBoard = (() => {
-  let boxes = [];
+  let boxes;
 
   const populateBoxes = () => {
+    boxes = [];
     for (let row = 0; row < 3; row++) {
       boxes.push([]);
       for (let column = 0; column < 3; column++) {
@@ -85,6 +86,11 @@ const displayController = (doc => {
   }
 
   const drawBoard = () => {
+    const tempOuterBox = doc.querySelector('.outer-box');
+    if (tempOuterBox !== null) {
+      tempOuterBox.remove();
+    }
+
     const body = doc.querySelector('body');
     const outerBox = doc.createElement('div');
     outerBox.classList.add('outer-box');
@@ -127,7 +133,7 @@ const displayController = (doc => {
 
   const endMessage = winner => {
     const message = doc.querySelector('#end-message');
-    const endContainer = doc.querySelector('#end-game-container');
+    // const endContainer = doc.querySelector('#end-game-container');
     let endCondition;
 
     if (winner !== 'none') {
@@ -138,10 +144,20 @@ const displayController = (doc => {
     }
 
     message.innerText = `Game Over! ${endCondition}`;
-    endContainer.style.display = 'flex';
+    // endContainer.style.display = 'flex';
 
+    toggleEndMessage();
+    toggleActivePlayer();
+  }
+
+  const toggleActivePlayer = () => {
     const playerTurn = doc.querySelector('.player-turn');
-    playerTurn.style.display = 'none';
+    playerTurn.style.display = window.getComputedStyle(playerTurn).getPropertyValue('display') === 'none' ? 'block' : 'none';
+  }
+
+  const toggleEndMessage = () => {
+    const endContainer = doc.querySelector('#end-game-container');
+    endContainer.style.display = window.getComputedStyle(endContainer).getPropertyValue('display') === 'none' ? 'flex' : 'none';
   }
 
   return {
@@ -150,6 +166,8 @@ const displayController = (doc => {
     shadeWinner,
     updateActivePlayer,
     endMessage,
+    toggleActivePlayer,
+    toggleEndMessage,
   }
 })(document);
 
@@ -158,10 +176,10 @@ const player = (symbol) => {
 };
 
 const gameController = (doc => {
-  let player1 = player('X');
-  let player2 = player('O');
-  let activePlayer = player1;
-  let winningLine = [];
+  let player1;
+  let player2;
+  let activePlayer;
+  let winningLine;
 
   const swapActivePlayer = () => {
     activePlayer = activePlayer === player1 ? player2 : player1;
@@ -210,6 +228,7 @@ const gameController = (doc => {
 
   const gameOver = winner => {
     displayController.endMessage(winner);
+    // to-do: disable tic tac toe boxes event listener
   }
 
   const playRound = box => {
@@ -224,19 +243,34 @@ const gameController = (doc => {
     }
   }
 
+  const resetGame = () => {
+    displayController.toggleEndMessage();
+    displayController.toggleActivePlayer();
+
+    const resetButton = doc.querySelector('#reset-btn');
+    resetButton.removeEventListener('click', resetGame);
+
+    executeGame();
+  }
+
   const executeGame = () => {
+    player1 = player('X');
+    player2 = player('O');
+    activePlayer = player1;
+    winningLine = [];
+
     gameBoard.populateBoxes();
     displayController.drawBoard();
     displayController.updateActivePlayer(activePlayer);
+
+    const resetButton = doc.querySelector('#reset-btn');
+    resetButton.addEventListener('click', resetGame);
 
     let boxes = doc.querySelectorAll('.box');
     boxes.forEach(box => box.addEventListener('click', event => {
       winningLine = playRound(event.target);
 
       if (winningLine !== undefined) {
-        /* TO-DO:
-        - Reset board after end confirmation
-        */
         gameOver(activePlayer.symbol);
         displayController.shadeWinner(winningLine.coordinates);
       }
