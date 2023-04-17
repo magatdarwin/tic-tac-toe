@@ -228,10 +228,12 @@ const gameController = (doc => {
 
   const gameOver = winner => {
     displayController.endMessage(winner);
-    // to-do: disable tic tac toe boxes event listener
+    const boxes = doc.querySelectorAll('.box');
+    boxes.forEach(box => box.removeEventListener('click', playRound));
   }
 
-  const playRound = box => {
+  const playRound = event => {
+    const box = event.target;
     const row = box.dataset.row;
     const column = box.dataset.column;
 
@@ -239,7 +241,18 @@ const gameController = (doc => {
       gameBoard.setSymbol(row, column, activePlayer.symbol);
       displayController.drawSymbol(activePlayer.symbol, box);
 
-      return getWinningLine();
+      winningLine = getWinningLine();
+    }
+
+    if (winningLine !== undefined) {
+      gameOver(activePlayer.symbol);
+      displayController.shadeWinner(winningLine.coordinates);
+    }
+    else if (winningLine === undefined && isGameboardFilled()) {
+      gameOver('none');
+    }
+    else {
+      swapActivePlayer();
     }
   }
 
@@ -267,20 +280,7 @@ const gameController = (doc => {
     resetButton.addEventListener('click', resetGame);
 
     let boxes = doc.querySelectorAll('.box');
-    boxes.forEach(box => box.addEventListener('click', event => {
-      winningLine = playRound(event.target);
-
-      if (winningLine !== undefined) {
-        gameOver(activePlayer.symbol);
-        displayController.shadeWinner(winningLine.coordinates);
-      }
-      else if (winningLine === undefined && isGameboardFilled()) {
-        gameOver('none');
-      }
-      else {
-        swapActivePlayer();
-      }
-    }));
+    boxes.forEach(box => box.addEventListener('click', playRound));
   }
 
   return {
